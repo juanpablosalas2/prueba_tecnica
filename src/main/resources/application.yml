@@ -1,0 +1,7 @@
+server:
+  port: 8080
+spring:
+  datasource:
+    url: "jdbc:mysql://localhost/prueba_tecnica"
+    username: "root"
+    driver-class-name: com.mysql.cj.jdbc.Driver
