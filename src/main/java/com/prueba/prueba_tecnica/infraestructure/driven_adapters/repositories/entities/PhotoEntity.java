@@ -1,6 +1,7 @@
 package com.prueba.prueba_tecnica.infraestructure.driven_adapters.repositories.entities;
 
 
+import com.prueba.prueba_tecnica.domain.model.Photo;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -9,8 +10,7 @@ import lombok.NoArgsConstructor;
 import javax.persistence.*;
 
 @Data
-@Table(name = "photo")
-@Entity
+@Entity(name = "photo")
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder(toBuilder = true)
@@ -24,7 +24,27 @@ public class PhotoEntity {
     @Column
     private String url;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "album_id")
     private AlbumEntity albumEntity;
+
+
+
+    public static PhotoEntity convertToEntity(Photo photo) {
+        return PhotoEntity.builder()
+                .id(photo.getId())
+                .title(photo.getTitle())
+                .url(photo.getUrl())
+                .albumEntity(AlbumEntity.builder().id(photo.getAlbum()).build())
+                .build();
+    }
+
+    public static Photo convertToModel(PhotoEntity photoEntity) {
+        return Photo.builder()
+                .id(photoEntity.getId())
+                .title(photoEntity.getTitle())
+                .url(photoEntity.getUrl())
+                .album(photoEntity.getAlbumEntity().getId())
+                .build();
+    }
 }
