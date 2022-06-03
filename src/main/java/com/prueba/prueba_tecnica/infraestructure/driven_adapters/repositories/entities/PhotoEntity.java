@@ -2,22 +2,23 @@ package com.prueba.prueba_tecnica.infraestructure.driven_adapters.repositories.e
 
 
 import com.prueba.prueba_tecnica.domain.model.Photo;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+
 
 import javax.persistence.*;
 
-@Data
-@Entity(name = "photo")
+
+@Getter
+@Setter
+@Table(name = "photo")
 @AllArgsConstructor
 @NoArgsConstructor
+@Entity
 @Builder(toBuilder = true)
 public class PhotoEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @Column
     private String title;

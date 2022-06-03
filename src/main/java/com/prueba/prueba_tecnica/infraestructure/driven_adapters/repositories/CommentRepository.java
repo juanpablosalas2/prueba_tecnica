@@ -6,4 +6,8 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface CommentRepository  extends JpaRepository<CommentEntity,Long> {
+
+    CommentEntity findByEmail(String email);
+
+    CommentEntity findByName(String name);
 }

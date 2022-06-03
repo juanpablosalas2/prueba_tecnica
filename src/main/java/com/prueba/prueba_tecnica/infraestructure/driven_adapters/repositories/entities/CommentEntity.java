@@ -8,24 +8,27 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 
+
 @Data
-@Entity(name = "comment")
+@Table(name = "comment")
+@Entity
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder(toBuilder = true)
 public class CommentEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column
+    @Column(nullable = false)
     private String name;
 
-    @Column
+    @Column(nullable = false)
     private String email;
 
-    @Column
+    @Column(nullable = false)
+    @Lob
     private String body;
 
 

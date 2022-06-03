@@ -9,7 +9,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
-import javax.transaction.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -21,14 +20,12 @@ public class ValidatePermissionUserImp implements ValidatePermissionUser {
     private final UserRepository userRepository;
     private final PermissionRepository permissionRepository;
     @Override
-    @Transactional
     public Mono<Boolean> validatePermissionUser(Long userId,Long albumId) {
         return Mono.just(userId)
                 .map(userRepository::findById)
                 .switchIfEmpty(Mono.error(new UserException(String.format(ID_NOT_FOUND,userId))))
                 .map(userEntity -> permissionRepository.getTypePermissionByIds(userId,albumId))
                 .map(permissionEntity -> permissionEntity.getTypePermission().equals(WRITE) ? Boolean.TRUE: Boolean.FALSE);
-
     }
 
 

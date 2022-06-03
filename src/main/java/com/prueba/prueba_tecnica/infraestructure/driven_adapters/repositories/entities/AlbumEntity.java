@@ -3,48 +3,45 @@ package com.prueba.prueba_tecnica.infraestructure.driven_adapters.repositories.e
 
 import com.prueba.prueba_tecnica.domain.model.Album;
 import com.prueba.prueba_tecnica.domain.model.Permission;
-import com.prueba.prueba_tecnica.domain.model.Photo;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import reactor.core.publisher.Flux;
 
 import javax.persistence.*;
-import java.util.Collection;
+import java.util.List;
+
 
 @Builder(toBuilder = true)
 @Data
-@Entity(name = "album")
 @NoArgsConstructor
 @AllArgsConstructor
+@Table(name = "album")
+@Entity
 public class AlbumEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column
     private String title;
+    @Column
+    private Long userCreate;
 
-    @ManyToOne(cascade = CascadeType.MERGE)
-    @JoinColumn(name = "user_id")
-    private UserEntity userEntity;
 
-    @OneToMany(fetch = FetchType.LAZY,mappedBy = "albumEntity",cascade = CascadeType.MERGE)
-    private Collection<PermissionEntity> permissions;
+    @OneToMany(mappedBy = "albumEntity", cascade = CascadeType.MERGE)
+    private List<PermissionEntity> permissions;
 
-    @OneToMany(fetch = FetchType.LAZY,mappedBy = "albumEntity",cascade = CascadeType.MERGE)
-    private Collection<PhotoEntity> photos;
+    @OneToMany(mappedBy = "albumEntity",cascade = CascadeType.MERGE)
+    private List<PhotoEntity> photos;
 
 
     public static AlbumEntity convertToEntity(Album album) {
         return AlbumEntity.builder()
                 .id(album.getId())
                 .title(album.getTitle())
-                .userEntity(UserEntity.convertToEntity(album.getUser()))
-                .permissions((Collection<PermissionEntity>) album.getPermissions())
-                .photos((Collection<PhotoEntity>) album.getPhotos())
+                .userCreate(album.getUserCreate())
                 .build();
     }
 
@@ -52,9 +49,7 @@ public class AlbumEntity {
         return Album.builder()
                 .id(albumEntity.getId())
                 .title(albumEntity.getTitle())
-                .user(UserEntity.convertToModel(albumEntity.getUserEntity()))
-                .permissions((Flux<Permission>) albumEntity.getPermissions())
-                .photos((Flux<Photo>) albumEntity.getPhotos())
+                .userCreate(albumEntity.getUserCreate())
                 .build();
     }
 }

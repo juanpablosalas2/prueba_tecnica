@@ -8,12 +8,10 @@ public interface PhotoUseCase {
 
     Mono<Photo> createPhoto(Photo photo, Long idUser);
 
-    Mono<Boolean> deletePhoto(Long idPhoto, Long idUser);
+    Mono<Void> deletePhoto(Long idPhoto, Long idUser);
 
     Mono<Photo> updatePhoto(Photo photo, Long idUser);
 
     Flux<Photo> findAllPhotos();
-
-    Flux<Photo> findAllPhotosByUser(Long isUser);
 
 }

@@ -1,32 +1,32 @@
 package com.prueba.prueba_tecnica.infraestructure.driven_adapters.repositories.entities;
 
 import com.prueba.prueba_tecnica.domain.model.Permission;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+
 
 import javax.persistence.*;
 
 @Builder(toBuilder = true)
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Entity(name = "permission")
+@Entity
+@Table(name = "permission")
 public class PermissionEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(nullable = false)
     private String typePermission;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne(cascade = CascadeType.MERGE)
     @JoinColumn(name = "album_id")
     private AlbumEntity albumEntity;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne(cascade = CascadeType.MERGE)
     @JoinColumn(name = "user_id")
     private UserEntity userEntity;
 
@@ -35,8 +35,8 @@ public class PermissionEntity {
         return PermissionEntity.builder()
                 .id(permission.getId())
                 .typePermission(permission.getTypePermission())
-                .albumEntity(AlbumEntity.convertToEntity(permission.getAlbum()))
-                .userEntity(UserEntity.convertToEntity(permission.getUser()))
+                .albumEntity(AlbumEntity.builder().id(permission.getAlbum()).build())
+                .userEntity(UserEntity.builder().id(permission.getUser()).build())
                 .build();
     }
 
@@ -44,8 +44,8 @@ public class PermissionEntity {
         return Permission.builder()
                 .id(permissionEntity.getId())
                 .typePermission(permissionEntity.getTypePermission())
-                .album(AlbumEntity.convertToModel(permissionEntity.getAlbumEntity()))
-                .user(UserEntity.convertToModel(permissionEntity.getUserEntity()))
+                .album(permissionEntity.getAlbumEntity().getId())
+                .user(permissionEntity.getUserEntity().getId())
                 .build();
     }
 

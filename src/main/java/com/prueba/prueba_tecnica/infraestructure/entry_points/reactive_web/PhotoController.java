@@ -4,6 +4,7 @@ package com.prueba.prueba_tecnica.infraestructure.entry_points.reactive_web;
 import com.prueba.prueba_tecnica.domain.model.GeneralResponse;
 import com.prueba.prueba_tecnica.domain.model.Photo;
 import com.prueba.prueba_tecnica.domain.usecase.interfaces.PhotoUseCase;
+import com.prueba.prueba_tecnica.domain.usecase.interfaces.SaveDataToApi;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -11,6 +12,8 @@ import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import javax.validation.Valid;
 import java.util.HashMap;
 
@@ -26,6 +29,7 @@ public class PhotoController {
     private final GeneralResponse<Photo> generalResponse;
     private final GeneralResponse<Boolean> responseDelete;
     private final PhotoUseCase photoUseCase;
+    private final SaveDataToApi saveDataToApi;
 
     @PostMapping("/create/{idUser}")
     public Mono<ResponseEntity<GeneralResponse<Photo>>> createPhoto(@Valid @RequestBody Photo photo, @PathVariable Long idUser){
@@ -35,7 +39,7 @@ public class PhotoController {
                     data.put(PHOTO, photo1);
                     return generalResponse.generateGeneralResponseSuccess(Boolean.TRUE, ADDED_SUCCESS, data, HttpStatus.CREATED);
                 })
-                .onErrorResume(throwable -> Mono.just(generalResponse.generateGeneralResponseError(Boolean.FALSE, throwable.getMessage(), HttpStatus.NOT_FOUND)));
+                .onErrorResume(throwable -> Mono.just(generalResponse.generateGeneralResponseError(Boolean.FALSE, throwable.getMessage(), HttpStatus.BAD_REQUEST)));
     }
     @PutMapping("/update/{idUser}")
     public Mono<ResponseEntity<GeneralResponse<Photo>>> updatePhoto(@Valid @RequestBody Photo photo, @PathVariable Long idUser){
@@ -53,19 +57,16 @@ public class PhotoController {
         return photoUseCase.deletePhoto(idPhoto,idUser)
                 .map(photo1 -> {
                     HashMap<String, Boolean> data = new HashMap<>();
-                    data.put(PHOTO, photo1);
+                    data.put(PHOTO, Boolean.TRUE);
                     return responseDelete.generateGeneralResponseSuccess(Boolean.TRUE, DELETED_SUCCESS, data, HttpStatus.ACCEPTED);
                 })
                 .onErrorResume(throwable -> Mono.just(responseDelete.generateGeneralResponseError(Boolean.FALSE, throwable.getMessage(), HttpStatus.NOT_FOUND)));
     }
 
     @GetMapping
-    public Flux<Photo> getAllExperiences() {
+    public Flux<Photo> getAllPhotos() {
         return photoUseCase.findAllPhotos();
     }
 
-    @GetMapping("/find/{idUser}")
-    public Flux<Photo> getAllExperiencesByUser(@PathVariable Long idUser){
-        return photoUseCase.findAllPhotosByUser(idUser);
-    }
+
  }

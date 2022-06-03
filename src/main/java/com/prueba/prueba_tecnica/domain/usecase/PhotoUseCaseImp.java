@@ -2,7 +2,6 @@ package com.prueba.prueba_tecnica.domain.usecase;
 
 import com.prueba.prueba_tecnica.domain.model.Photo;
 import com.prueba.prueba_tecnica.domain.model.exceptions.PhotoException;
-import com.prueba.prueba_tecnica.domain.model.exceptions.UserException;
 import com.prueba.prueba_tecnica.domain.usecase.interfaces.PhotoUseCase;
 import com.prueba.prueba_tecnica.domain.usecase.interfaces.ValidatePermissionUser;
 import com.prueba.prueba_tecnica.infraestructure.driven_adapters.repositories.PhotoRepository;
@@ -18,8 +17,6 @@ import reactor.core.publisher.Mono;
 @RequiredArgsConstructor
 @Slf4j
 public class PhotoUseCaseImp implements PhotoUseCase {
-
-    public static final String NOT_PERMISSIONS = "No tienes los permisos para agregar fotos a este album";
     private static final String ID_NOT_FOUND = "Photo With ID %d not found";
     private final PhotoRepository photoRepository;
     private final ValidatePermissionUser validatePermissionUser;
@@ -52,15 +49,15 @@ public class PhotoUseCaseImp implements PhotoUseCase {
     }
 
     @Override
-    public Mono<Boolean> deletePhoto(Long idPhoto, Long idUser) {
+    public Mono<Void> deletePhoto(Long idPhoto, Long idUser) {
         return Mono.just(idPhoto)
                 .map(photoRepository::findById)
                 .switchIfEmpty(Mono.error(new PhotoException(String.format(ID_NOT_FOUND,idPhoto))))
                 .flatMap(photoEntity -> validatePermissionUser.validatePermissionUser(idUser, photoEntity.get().getAlbumEntity().getId()))
                 .map(isWrite -> Boolean.TRUE.equals(isWrite) ? idPhoto : null)
-                .map(id -> {
-                    photoRepository.deleteById(id);
-                    return Boolean.TRUE;
+                .flatMap(aLong -> {
+                    photoRepository.deleteById(aLong);
+                    return Mono.when();
                 })
                 .onErrorResume(throwable -> Mono.error(new PhotoException("Photo could not be deleted,verify permissions",throwable)));
     }
@@ -68,13 +65,8 @@ public class PhotoUseCaseImp implements PhotoUseCase {
     @Override
     public Flux<Photo> findAllPhotos() {
         return Flux.fromIterable(photoRepository.findAll())
-                .map(photoEntity -> PhotoEntity.convertToModel(photoEntity))
+                .map(PhotoEntity::convertToModel)
                 .onErrorResume(throwable -> Mono.error(new PhotoException("Photo could not be founded",throwable)));
-    }
-
-    @Override
-    public Flux<Photo> findAllPhotosByUser(Long isUser) {
-        return null;
     }
 
 
@@ -83,7 +75,7 @@ public class PhotoUseCaseImp implements PhotoUseCase {
     private Mono<PhotoEntity> verifyPermissions(Photo photo, Long idUser) {
         return Mono.just(idUser)
                 .flatMap(id -> validatePermissionUser.validatePermissionUser(id, photo.getAlbum()))
-                .map(isWrite -> Boolean.TRUE.equals(isWrite) ? PhotoEntity.convertToEntity(photo) : PhotoEntity.builder().build())
+                .map(isWrite -> Boolean.TRUE.equals(isWrite) ? PhotoEntity.convertToEntity(photo) :null)
                 .onErrorStop();
     }
 

@@ -1,44 +1,37 @@
 package com.prueba.prueba_tecnica.infraestructure.driven_adapters.repositories.entities;
 
 
-import com.prueba.prueba_tecnica.domain.model.Album;
-import com.prueba.prueba_tecnica.domain.model.Permission;
 import com.prueba.prueba_tecnica.domain.model.User;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import reactor.core.publisher.Flux;
-
+import lombok.*;
 import javax.persistence.*;
-import java.util.Collection;
 import java.util.List;
 
-@Data
+
+@Getter
+@Setter
 @Builder(toBuilder = true)
-@Entity(name = "user")
+@Table(name = "user")
+@Entity
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column
+    @Column(nullable = false)
     private String name;
-    @Column
+    @Column(nullable = false)
     private String email;
-    @Column
+    @Column(nullable = false)
     private String phone;
-    @Column
+    @Column(nullable = false)
     private String website;
 
-    @OneToMany(mappedBy = "userEntity",fetch = FetchType.LAZY,cascade = CascadeType.ALL)
-    private List<AlbumEntity> albums;
+    @OneToMany(mappedBy = "userEntity")
+    List<PermissionEntity> permissionEntities;
 
-    @OneToMany(mappedBy = "userEntity",fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    private List<PermissionEntity> permissions;
 
     public static UserEntity convertToEntity(User user) {
         return UserEntity.builder()
@@ -47,8 +40,6 @@ public class UserEntity {
                 .email(user.getEmail())
                 .phone(user.getPhone())
                 .website(user.getWebsite())
-                .albums((List<AlbumEntity>) user.getAlbums())
-                .permissions((List<PermissionEntity>) user.getPermissions())
                 .build();
     }
 
@@ -59,8 +50,6 @@ public class UserEntity {
                 .email(userEntity.getEmail())
                 .phone(userEntity.getPhone())
                 .website(userEntity.getWebsite())
-                .albums((Flux<Album>) userEntity.getAlbums())
-                .permissions((Flux<Permission>) userEntity.getPermissions())
                 .build();
     }
 
